@@ -102,7 +102,5 @@ Then build the `CMakeLists.txt` file with the flag `-DVK2D_BUILD_EXAMPLES:BOOL=O
 
 ## Roadmap
 
- + Stability improvements
- + Custom allocator support
  + Better shader support
  + Texture readback
