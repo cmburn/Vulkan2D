@@ -10,7 +10,8 @@
 [Vulkan2D](https://github.com/PaoloMazzon/Vulkan2D) is a 2D renderer using Vulkan and SDL3 primarily for C games. VK2D 
 aims for an extremely simple API, requiring no Vulkan experience to use. This project
 initially started out aiming to be a more feature complete drop-in replacement for
-the SDL renderer, but since then has grown in scope. 
+the SDL renderer, but since then has grown in scope. Vulkan2D requires C++20, C11,
+and Vulkan 1.2+.
 
 ## Features
 

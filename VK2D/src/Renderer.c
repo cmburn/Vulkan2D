@@ -14,9 +14,7 @@
 #include "VK2D/PhysicalDevice.h"
 #include "VK2D/LogicalDevice.h"
 #include "VK2D/Texture.h"
-#include "VK2D/Shader.h"
-#include "VK2D/Image.h"
-#include "VK2D/Model.h"
+#include "VK2D/ShaderCompiler.h"
 #include "VK2D/DescriptorBuffer.h"
 #include "VK2D/DescriptorControl.h"
 #include "VK2D/Opaque.h"
@@ -248,6 +246,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
 		_vk2dRendererCreateSynchronization();
 		_vk2dRendererCreateSpriteBatching();
 		_vk2dRendererInitNuklear();
+        _vk2dInitShaderCompiler();
 
 		// Quit if something failed
         if (vk2dStatusFatal()) {
@@ -279,6 +278,7 @@ void vk2dRendererQuit() {
 		    vkQueueWaitIdle(gRenderer->ld->queue);
 
 		// Destroy subsystems
+        _vk2dQuitShaderCompiler();
         _vk2dRendererQuitNuklear();
         _vk2dRendererDestroySpriteBatching();
 		_vk2dRendererDestroySynchronization();
