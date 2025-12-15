@@ -1467,14 +1467,11 @@ void _vk2dRendererResetSwapchain() {
         return;
     }
 
-	// Free swapchain
+	// Free swapchain TODO - cut this down severely
 	_vk2dRendererDestroySynchronization();
 	_vk2dRendererDestroySampler();
-	_vk2dRendererDestroyDescriptorPool(true);
 	_vk2dRendererDestroyUniformBuffers();
 	_vk2dRendererDestroyFrameBuffer();
-	_vk2dRendererDestroyPipelines(true);
-	_vk2dRendererDestroyRenderPass();
 	_vk2dRendererDestroyDepthBuffer();
 	_vk2dRendererDestroyColourResources();
 	_vk2dRendererDestroySwapchain();
@@ -1489,10 +1486,7 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateSwapchain();
 	_vk2dRendererCreateColourResources();
 	_vk2dRendererCreateDepthBuffer();
-	_vk2dRendererCreateRenderPass();
-	_vk2dRendererCreatePipelines();
 	_vk2dRendererCreateFrameBuffer();
-	_vk2dRendererCreateDescriptorPool(true);
 	_vk2dRendererCreateUniformBuffers(false);
 	_vk2dRendererCreateSampler();
 	_vk2dRendererRefreshTargets();

@@ -5,41 +5,119 @@
 #include <string>
 #include "VK2D/ShaderCompiler.h"
 #include "VK2D/Validation.h"
+#include "VK2D/Logger.h"
 
 using namespace slang;
-static SlangGlobalSessionDesc gGlobalSessionDesc;
-static Slang::ComPtr<ISession> gSession;
+static Slang::ComPtr<IGlobalSession> gGlobalSession;
 
 void _vk2dInitShaderCompiler() {
-    // Global session
-    Slang::ComPtr<IGlobalSession> globalSession;
-    SlangResult result = createGlobalSession(&gGlobalSessionDesc, globalSession.writeRef());
+    // Create the global session
+    SlangGlobalSessionDesc globalSessionDesc = {0};
+    SlangResult result = createGlobalSession(&globalSessionDesc, gGlobalSession.writeRef());
     if (!SLANG_SUCCEEDED(result)) {
         vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to initialize global Slang session, %s", slang_getLastInternalErrorMessage());
     }
+}
 
-    // Session (not global)
+void _vk2dQuitShaderCompiler() {
+    // nothing yet
+}
+
+bool _vk2dShaderCompile(const char *shader, VK2DCompiledShaders *compiledShaders) {
+    memset(compiledShaders, 0, sizeof(VK2DCompiledShaders));
+
+    // Create the local session
     TargetDesc target = {
             .format = SLANG_SPIRV,
-            .profile = globalSession->findProfile("glsl_450"),
+            .profile = gGlobalSession->findProfile("glsl_450"),
     };
-
     SessionDesc sessionDesc = {
-        .targets = &target,
-        .targetCount = 1,
+            .targets = &target,
+            .targetCount = 1,
     };
-    result = globalSession->createSession(sessionDesc, gSession.writeRef());
+    Slang::ComPtr<ISession> session;
+    SlangResult result = gGlobalSession->createSession(sessionDesc, session.writeRef());
     if (!SLANG_SUCCEEDED(result)) {
         vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to initialize Slang session, %s", slang_getLastInternalErrorMessage());
     }
 
-    // TODO: Write script to dump Prologue.slang and Epilogue.slang to a C header so we can use them here
-}
+    // Load user shader module
+    Slang::ComPtr<IBlob> diagnostics;
+    Slang::ComPtr<IModule> module(session->loadModuleFromSourceString("user_shader", "", shader, diagnostics.writeRef()));
+    if (diagnostics) {
+        vk2dLogWarn("%s", (const char*) diagnostics->getBufferPointer());
+    }
 
-void _vk2dQuitShaderCompiler() {
-    // TODO: This
-}
+    // Find frag and vertex entry points
+    Slang::ComPtr<IEntryPoint> fragEntryPoint;
+    result = module->findEntryPointByName("PixelShader", fragEntryPoint.writeRef());
 
-bool _vk2dShaderCompile(const char *shader, uint8_t **outBuffer, uint32_t *outSize) {
+    if (!SLANG_SUCCEEDED(result)) {
+        vk2dLogWarn("Failed to get entrypoint for pixel shader, %s", slang_getLastInternalErrorMessage());
+        return false;
+    }
+
+    Slang::ComPtr<IEntryPoint> vertEntryPoint;
+    result = module->findEntryPointByName("VertexShader", vertEntryPoint.writeRef());
+
+    if (!SLANG_SUCCEEDED(result)) {
+        vk2dLogWarn("Failed to get entrypoint for vertex shader, %s", slang_getLastInternalErrorMessage());
+        return false;
+    }
+
+    IComponentType* components[] = { module, fragEntryPoint, vertEntryPoint };
+    Slang::ComPtr<IComponentType> program;
+    result = session->createCompositeComponentType(components, 3, program.writeRef());
+
+    if (!SLANG_SUCCEEDED(result)) {
+        vk2dLogWarn("Failed to compose Slang components, %s", slang_getLastInternalErrorMessage());
+        return false;
+    }
+
+    // TODO: Automatic user buffer reflection
+
+    // Link the shader
+    Slang::ComPtr<IComponentType> linkedProgram;
+    Slang::ComPtr<ISlangBlob> diagnosticBlob;
+    result = program->link(linkedProgram.writeRef(), diagnosticBlob.writeRef());
+
+    if (!SLANG_SUCCEEDED(result)) {
+        vk2dLogWarn("Failed to link Slang components, %s", slang_getLastInternalErrorMessage());
+        return false;
+    }
+
+    // Get final spir-v
+    Slang::ComPtr<IBlob> fragKernelBlob;
+    Slang::ComPtr<IBlob> vertKernelBlob;
+    result = linkedProgram->getEntryPointCode(
+            0, // frag
+            0,
+            fragKernelBlob.writeRef(),
+            diagnostics.writeRef());
+
+    if (!SLANG_SUCCEEDED(result)) {
+        vk2dLogWarn("Failed to get fragment SPIR-V, %s", (const char*) diagnostics->getBufferPointer());
+        return false;
+    }
+
+    result = linkedProgram->getEntryPointCode(
+            1, // vert
+            0,
+            vertKernelBlob.writeRef(),
+            diagnostics.writeRef());
+
+    if (!SLANG_SUCCEEDED(result)) {
+        vk2dLogWarn("Failed to get vertex SPIR-V, %s", (const char*) diagnostics->getBufferPointer());
+        return false;
+    }
+
+    // Copy over the new spir-v
+    compiledShaders->fragmentSpirvSize = fragKernelBlob->getBufferSize();
+    compiledShaders->vertexSpirvSize = vertKernelBlob->getBufferSize();
+    compiledShaders->fragmentSpirv = static_cast<uint32_t*>(malloc(fragKernelBlob->getBufferSize()));
+    compiledShaders->vertexSpirv = static_cast<uint32_t*>(malloc(vertKernelBlob->getBufferSize()));
+    memcpy(compiledShaders->fragmentSpirv, fragKernelBlob->getBufferPointer(), compiledShaders->fragmentSpirvSize);
+    memcpy(compiledShaders->vertexSpirv, vertKernelBlob->getBufferPointer(), compiledShaders->vertexSpirvSize);
+
     return false;
 }
