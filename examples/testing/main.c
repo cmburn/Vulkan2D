@@ -12,7 +12,7 @@
 const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
 
-bool _vk2dShaderCompile(const char *shader, void *compiledShaders);
+bool _vk2dShaderCompile(const char *shader, uint32_t size, void *compiledShaders);
 int main(int argc, const char *argv[]) {
 	// Basic SDL setup
     SDL_Init(SDL_INIT_EVENTS);
@@ -62,9 +62,11 @@ int main(int argc, const char *argv[]) {
 
     uint32_t shaders[30];
     uint32_t size;
-    if (!_vk2dShaderCompile(_vk2dLoadFile("assets/shader.slang", &size), &shaders)) {
+    const char *shader = _vk2dLoadFile("assets/shader.slang", &size);
+    if (!_vk2dShaderCompile(shader, size, &shaders)) {
         abort();
     }
+    free(shader);
 
 	while (!quit && !vk2dStatusFatal()) {
 		const double time = (double)(SDL_GetPerformanceCounter() - startTime) / (double)SDL_GetPerformanceFrequency();

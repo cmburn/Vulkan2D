@@ -1,32 +1,26 @@
 struct VSInput
 {
-    float3 position : POSITION;
-    float2 uv       : TEXCOORD0;
+    float3 position;
+    float2 uv;
 };
 
 struct VSOutput
 {
-    float4 position : SV_Position;
-    float2 uv       : TEXCOORD0;
+    float4 position;
+    float2 uv;
 };
 
-cbuffer Camera : register(b0)
-{
-    float4x4 viewProj;
-};
-
-VSOutput VertexMain(VSInput input)
+[shader("vertex")]
+VSOutput VertexShader(VSInput input)
 {
     VSOutput out;
-    out.position = mul(viewProj, float4(input.position, 1.0));
-    out.uv = input.uv;
+    out.position = float4(0.0, 0.0, 0.0, 0.0);
+    out.uv = float2(0.0, 0.0);
     return out;
 }
 
-Texture2D    gTexture : register(t0);
-SamplerState gSampler : register(s0);
-
-float4 FragmentMain(VSOutput input) : SV_Target
+[shader("pixel")]
+float4 PixelShader(VSOutput input)
 {
-    return gTexture.Sample(gSampler, input.uv);
+    return float4(0.0, 0.0, 0.0, 0.0);
 }

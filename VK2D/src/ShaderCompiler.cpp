@@ -23,7 +23,7 @@ void _vk2dQuitShaderCompiler() {
     // nothing yet
 }
 
-bool _vk2dShaderCompile(const char *shader, VK2DCompiledShaders *compiledShaders) {
+bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledShaders *compiledShaders) {
     memset(compiledShaders, 0, sizeof(VK2DCompiledShaders));
 
     // Create the local session
@@ -43,7 +43,8 @@ bool _vk2dShaderCompile(const char *shader, VK2DCompiledShaders *compiledShaders
 
     // Load user shader module
     Slang::ComPtr<IBlob> diagnostics;
-    Slang::ComPtr<IModule> module(session->loadModuleFromSourceString("user_shader", "user_shader", shader, diagnostics.writeRef()));
+    Slang::ComPtr<ISlangBlob> blob(slang_createBlob(shader, shaderSize));
+    Slang::ComPtr<IModule> module(session->loadModuleFromSource("user_shader", "user_shader", blob, diagnostics.writeRef()));
     if (diagnostics) {
         vk2dLogInfo("%s", (const char*) diagnostics->getBufferPointer());
     }
@@ -122,5 +123,5 @@ bool _vk2dShaderCompile(const char *shader, VK2DCompiledShaders *compiledShaders
     memcpy(compiledShaders->fragmentSpirv, fragKernelBlob->getBufferPointer(), compiledShaders->fragmentSpirvSize);
     memcpy(compiledShaders->vertexSpirv, vertKernelBlob->getBufferPointer(), compiledShaders->vertexSpirvSize);
 
-    return false;
+    return true;
 }
