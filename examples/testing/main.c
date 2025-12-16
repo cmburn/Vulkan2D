@@ -3,8 +3,7 @@
 #include <stdbool.h>
 #include "VK2D/VK2D.h"
 #include "VK2D/Validation.h"
-#include <stdio.h>
-#include <time.h>
+#include "VK2D/Util.h"
 #include <math.h>
 #include "../debug.c"
 
@@ -13,6 +12,7 @@
 const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
 
+bool _vk2dShaderCompile(const char *shader, void *compiledShaders);
 int main(int argc, const char *argv[]) {
 	// Basic SDL setup
     SDL_Init(SDL_INIT_EVENTS);
@@ -58,6 +58,12 @@ int main(int argc, const char *argv[]) {
         commands[i].textureIndex = vk2dTextureGetID(texCaveguy);
         commands[i].texturePos[2] = 16;
         commands[i].texturePos[3] = 16;
+    }
+
+    uint32_t shaders[30];
+    uint32_t size;
+    if (!_vk2dShaderCompile(_vk2dLoadFile("assets/shader.slang", &size), &shaders)) {
+        abort();
     }
 
 	while (!quit && !vk2dStatusFatal()) {

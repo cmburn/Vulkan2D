@@ -43,9 +43,12 @@ bool _vk2dShaderCompile(const char *shader, VK2DCompiledShaders *compiledShaders
 
     // Load user shader module
     Slang::ComPtr<IBlob> diagnostics;
-    Slang::ComPtr<IModule> module(session->loadModuleFromSourceString("user_shader", "", shader, diagnostics.writeRef()));
+    Slang::ComPtr<IModule> module(session->loadModuleFromSourceString("user_shader", "user_shader", shader, diagnostics.writeRef()));
     if (diagnostics) {
-        vk2dLogWarn("%s", (const char*) diagnostics->getBufferPointer());
+        vk2dLogInfo("%s", (const char*) diagnostics->getBufferPointer());
+    }
+    if (module.get() == nullptr) {
+        return false;
     }
 
     // Find frag and vertex entry points
@@ -53,7 +56,7 @@ bool _vk2dShaderCompile(const char *shader, VK2DCompiledShaders *compiledShaders
     result = module->findEntryPointByName("PixelShader", fragEntryPoint.writeRef());
 
     if (!SLANG_SUCCEEDED(result)) {
-        vk2dLogWarn("Failed to get entrypoint for pixel shader, %s", slang_getLastInternalErrorMessage());
+        vk2dLogInfo("Failed to get entrypoint for pixel shader, %s", slang_getLastInternalErrorMessage());
         return false;
     }
 
@@ -61,7 +64,7 @@ bool _vk2dShaderCompile(const char *shader, VK2DCompiledShaders *compiledShaders
     result = module->findEntryPointByName("VertexShader", vertEntryPoint.writeRef());
 
     if (!SLANG_SUCCEEDED(result)) {
-        vk2dLogWarn("Failed to get entrypoint for vertex shader, %s", slang_getLastInternalErrorMessage());
+        vk2dLogInfo("Failed to get entrypoint for vertex shader, %s", slang_getLastInternalErrorMessage());
         return false;
     }
 
@@ -70,7 +73,7 @@ bool _vk2dShaderCompile(const char *shader, VK2DCompiledShaders *compiledShaders
     result = session->createCompositeComponentType(components, 3, program.writeRef());
 
     if (!SLANG_SUCCEEDED(result)) {
-        vk2dLogWarn("Failed to compose Slang components, %s", slang_getLastInternalErrorMessage());
+        vk2dLogInfo("Failed to compose Slang components, %s", slang_getLastInternalErrorMessage());
         return false;
     }
 
@@ -82,7 +85,7 @@ bool _vk2dShaderCompile(const char *shader, VK2DCompiledShaders *compiledShaders
     result = program->link(linkedProgram.writeRef(), diagnosticBlob.writeRef());
 
     if (!SLANG_SUCCEEDED(result)) {
-        vk2dLogWarn("Failed to link Slang components, %s", slang_getLastInternalErrorMessage());
+        vk2dLogInfo("Failed to link Slang components, %s", slang_getLastInternalErrorMessage());
         return false;
     }
 
@@ -96,7 +99,7 @@ bool _vk2dShaderCompile(const char *shader, VK2DCompiledShaders *compiledShaders
             diagnostics.writeRef());
 
     if (!SLANG_SUCCEEDED(result)) {
-        vk2dLogWarn("Failed to get fragment SPIR-V, %s", (const char*) diagnostics->getBufferPointer());
+        vk2dLogInfo("Failed to get fragment SPIR-V, %s", (const char*) diagnostics->getBufferPointer());
         return false;
     }
 
@@ -107,7 +110,7 @@ bool _vk2dShaderCompile(const char *shader, VK2DCompiledShaders *compiledShaders
             diagnostics.writeRef());
 
     if (!SLANG_SUCCEEDED(result)) {
-        vk2dLogWarn("Failed to get vertex SPIR-V, %s", (const char*) diagnostics->getBufferPointer());
+        vk2dLogInfo("Failed to get vertex SPIR-V, %s", (const char*) diagnostics->getBufferPointer());
         return false;
     }
 
