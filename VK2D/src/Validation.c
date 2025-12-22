@@ -94,18 +94,52 @@ const char *vk2dStatusMessage() {
     return gLogBuffer;
 }
 
+static const char* vk2dDebugReportFlagsToString(VkDebugReportFlagsEXT flags) {
+    if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT) return "ERROR";
+    if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT) return "WARNING";
+    if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT) return "PERF";
+    if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) return "INFO";
+    if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) return "DEBUG";
+    return "UNKNOWN";
+}
+
+static const char* vk2dDebugObjectTypeToString(VkDebugReportObjectTypeEXT type) {
+    switch (type) {
+        case VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT: return "Instance";
+        case VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT: return "Device";
+        case VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT: return "Buffer";
+        case VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT: return "Image";
+        case VK_DEBUG_REPORT_OBJECT_TYPE_PIPELINE_EXT: return "Pipeline";
+        case VK_DEBUG_REPORT_OBJECT_TYPE_COMMAND_BUFFER_EXT: return "CommandBuffer";
+        case VK_DEBUG_REPORT_OBJECT_TYPE_DESCRIPTOR_SET_EXT: return "DescriptorSet";
+        default: return "Unknown";
+    }
+}
+
 VKAPI_ATTR VkBool32 VKAPI_CALL _vk2dDebugCallback(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t sourceObject, size_t location, int32_t messageCode, const char* layerPrefix, const char* message, void* data) {
     VK2DRenderer gRenderer = vk2dRendererGetPointer();
-    char firstHalf[1000];
     const bool isError = flags & VK_DEBUG_REPORT_ERROR_BIT_EXT;
     const VK2DLogSeverity severity = isError
                                      ? gRenderer->options.quitOnError
-                                       ? VK2D_LOG_SEVERITY_FATAL
-                                       : VK2D_LOG_SEVERITY_ERROR
+                                       ? VK2D_LOG_SEVERITY_INFO // TODO: Fix this
+                                       : VK2D_LOG_SEVERITY_INFO
                                      : VK2D_LOG_SEVERITY_INFO;
-    snprintf(firstHalf, 999, "%s", layerPrefix);
-    vk2dLoggerLog(severity, firstHalf);
-    vk2dLoggerLog(severity, message);
+    vk2dLoggerLogf(
+            severity,
+            "[VULKAN %s]\n"
+            "  Layer     : %s\n"
+            "  Object    : %s (0x%llx)\n"
+            "  Location  : %zu\n"
+            "  Code      : %d\n"
+            "  Message   : %s",
+            vk2dDebugReportFlagsToString(flags),
+            layerPrefix,
+            vk2dDebugObjectTypeToString(objectType),
+            (unsigned long long)sourceObject,
+            location,
+            messageCode,
+            message
+    );
     if (gRenderer->options.quitOnError)
         if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
             abort();
