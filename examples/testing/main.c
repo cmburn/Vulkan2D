@@ -1,9 +1,9 @@
 #define SDL_MAIN_HANDLED
 #include <SDL3/SDL_vulkan.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "VK2D/VK2D.h"
 #include "VK2D/Validation.h"
-#include <stdio.h>
 #include <time.h>
 #include <math.h>
 #include "../debug.c"
@@ -37,7 +37,7 @@ int main(int argc, const char *argv[]) {
     debugInit(window);
 
 	// Load Some test assets
-	VK2DTexture texCaveguy = vk2dTextureLoad("assets/caveguy.png");
+	VK2DTexture texCaveguy = vk2dTextureLoad("assets/cavseguy.png");
 
 	// Delta and fps
 	const double startTime = SDL_GetPerformanceCounter();

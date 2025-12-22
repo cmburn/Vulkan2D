@@ -66,8 +66,9 @@ void vk2dRaise(VK2DStatus result, const char* fmt, ...) {
         gStatus = 0;
         gLogBuffer[0] = 0;
     }
-    const VK2DLogSeverity severity = (gQuitOnError && vk2dStatusFatal()) ?
-                                     VK2D_LOG_SEVERITY_FATAL : VK2D_LOG_SEVERITY_ERROR;
+    //const VK2DLogSeverity severity = (gQuitOnError && vk2dStatusFatal()) ?
+    //                                 VK2D_LOG_SEVERITY_FATAL : VK2D_LOG_SEVERITY_ERROR;
+    const VK2DLogSeverity severity = VK2D_LOG_SEVERITY_INFO; // TODO: Fix error severity not displaying
     va_list ap;
     int32_t start = stringLength(gLogBuffer, gLogBufferSize);
     int32_t length = gLogBufferSize - start;
