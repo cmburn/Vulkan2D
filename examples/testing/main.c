@@ -37,7 +37,7 @@ int main(int argc, const char *argv[]) {
     debugInit(window);
 
 	// Load Some test assets
-	VK2DTexture texCaveguy = vk2dTextureLoad("assets/cavseguy.png");
+	VK2DTexture texCaveguy = vk2dTextureLoad("assets/caveguy.png");
 
 	// Delta and fps
 	const double startTime = SDL_GetPerformanceCounter();
