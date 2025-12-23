@@ -3,16 +3,17 @@
 #include <stdbool.h>
 #include "VK2D/VK2D.h"
 #include "VK2D/Validation.h"
-#include "VK2D/Util.h"
+#include <time.h>
 #include <math.h>
 #include "../debug.c"
+#include "VK2D/ShaderCompiler.h"
+#include "VK2D/Util.h"
 
 /************************ Constants ************************/
 
 const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
 
-bool _vk2dShaderCompile(const char *shader, uint32_t size, void *compiledShaders);
 int main(int argc, const char *argv[]) {
 	// Basic SDL setup
     SDL_Init(SDL_INIT_EVENTS);
