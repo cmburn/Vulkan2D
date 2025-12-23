@@ -57,10 +57,9 @@ typedef struct VK2DCamera {
 
 /// \brief Return value for compiling a shader
 typedef struct VK2DCompiledShaders_t {
-    uint32_t *vertexSpirv;
-    uint32_t vertexSpirvSize;
     uint32_t *fragmentSpirv;
     uint32_t fragmentSpirvSize;
+    uint32_t userDataSize;
 } VK2DCompiledShaders;
 
 /// \brief Makes managing buffers in Vulkan simpler

@@ -6,14 +6,14 @@
 #include <time.h>
 #include <math.h>
 #include "../debug.c"
-#include "VK2D/ShaderCompiler.h"
-#include "VK2D/Util.h"
 
 /************************ Constants ************************/
 
 const int WINDOW_WIDTH  = 800;
 const int WINDOW_HEIGHT = 600;
 
+unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size);
+bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, void *compiledShaders);
 int main(int argc, const char *argv[]) {
 	// Basic SDL setup
     SDL_Init(SDL_INIT_EVENTS);
@@ -61,10 +61,10 @@ int main(int argc, const char *argv[]) {
         commands[i].texturePos[3] = 16;
     }
 
-    uint32_t shaders[30];
+    uint32_t shaders[300];
     uint32_t size;
     const char *shader = _vk2dLoadFile("assets/shader.slang", &size);
-    if (!_vk2dShaderCompile(shader, size, &shaders)) {
+    if (!_vk2dShaderCompile(shader, size, shaders)) {
         abort();
     }
     free(shader);

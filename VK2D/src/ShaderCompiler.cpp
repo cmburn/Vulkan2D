@@ -52,7 +52,7 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
         return false;
     }
 
-    // Find frag and vertex entry points
+    // Find frag entry point
     Slang::ComPtr<IEntryPoint> fragEntryPoint;
     result = module->findEntryPointByName("PixelShader", fragEntryPoint.writeRef());
 
@@ -61,24 +61,31 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
         return false;
     }
 
-    Slang::ComPtr<IEntryPoint> vertEntryPoint;
-    result = module->findEntryPointByName("VertexShader", vertEntryPoint.writeRef());
 
-    if (!SLANG_SUCCEEDED(result)) {
-        vk2dLogInfo("Failed to get entrypoint for vertex shader, %s", slang_getLastInternalErrorMessage());
-        return false;
-    }
-
-    IComponentType* components[] = { module, fragEntryPoint, vertEntryPoint };
+    IComponentType* components[] = { module, fragEntryPoint };
     Slang::ComPtr<IComponentType> program;
-    result = session->createCompositeComponentType(components, 3, program.writeRef());
+    result = session->createCompositeComponentType(components, 2, program.writeRef());
 
     if (!SLANG_SUCCEEDED(result)) {
         vk2dLogInfo("Failed to compose Slang components, %s", slang_getLastInternalErrorMessage());
         return false;
     }
 
-    // TODO: Automatic user buffer reflection
+    // Detect if the user has a buffer in the shader
+    auto programLayout = program->getLayout();
+    auto globalVarLayout = programLayout->getGlobalParamsVarLayout();
+    auto globalTypeLayout = globalVarLayout->getTypeLayout();
+    size_t userDataSize = 0;
+
+    int fieldCount = globalTypeLayout->getFieldCount();
+    for (int i = 0; i < fieldCount; i++) {
+        auto fieldVarLayout = globalTypeLayout->getFieldByIndex(i);
+        if (strcmp(fieldVarLayout->getName(), "userData") == 0) {
+            auto fieldTypeLayout = fieldVarLayout->getTypeLayout();
+            userDataSize = fieldTypeLayout->getSize();
+            break;
+        }
+    }
 
     // Link the shader
     Slang::ComPtr<IComponentType> linkedProgram;
@@ -92,7 +99,6 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
 
     // Get final spir-v
     Slang::ComPtr<IBlob> fragKernelBlob;
-    Slang::ComPtr<IBlob> vertKernelBlob;
     result = linkedProgram->getEntryPointCode(
             0, // frag
             0,
@@ -104,24 +110,11 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
         return false;
     }
 
-    result = linkedProgram->getEntryPointCode(
-            1, // vert
-            0,
-            vertKernelBlob.writeRef(),
-            diagnostics.writeRef());
-
-    if (!SLANG_SUCCEEDED(result)) {
-        vk2dLogInfo("Failed to get vertex SPIR-V, %s", (const char*) diagnostics->getBufferPointer());
-        return false;
-    }
-
     // Copy over the new spir-v
     compiledShaders->fragmentSpirvSize = fragKernelBlob->getBufferSize();
-    compiledShaders->vertexSpirvSize = vertKernelBlob->getBufferSize();
     compiledShaders->fragmentSpirv = static_cast<uint32_t*>(malloc(fragKernelBlob->getBufferSize()));
-    compiledShaders->vertexSpirv = static_cast<uint32_t*>(malloc(vertKernelBlob->getBufferSize()));
     memcpy(compiledShaders->fragmentSpirv, fragKernelBlob->getBufferPointer(), compiledShaders->fragmentSpirvSize);
-    memcpy(compiledShaders->vertexSpirv, vertKernelBlob->getBufferPointer(), compiledShaders->vertexSpirvSize);
+    compiledShaders->userDataSize = userDataSize;
 
     return true;
 }

@@ -1489,7 +1489,6 @@ void _vk2dRendererResetSwapchain() {
 	_vk2dRendererCreateFrameBuffer();
 	_vk2dRendererCreateUniformBuffers(false);
 	_vk2dRendererCreateSampler();
-	_vk2dRendererRefreshTargets();
 	_vk2dRendererCreateSynchronization();
 	_vk2dRendererResetNuklear();
 

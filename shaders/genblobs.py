@@ -88,7 +88,7 @@ extern "C" {
 			counter += 1
 			out_string += bin_to_4hex(i) + ", "
 		out_string = out_string[:-2] + "\n};\n\n"
-	out_string += """#ifdef __cpluspluc
+	out_string += """#ifdef __cplusplus
 };
 #endif
 """
