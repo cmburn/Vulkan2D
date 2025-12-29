@@ -99,7 +99,7 @@ extern "C" {
 def main():
 	if len(argv) > 1:
 		header = compile_blob_file(compile_shaders(argv[1:]))
-		with open("../VK2D/Blobs.h", "w") as f:
+		with open("../VK2D/include/VK2D/Blobs.h", "w") as f:
 			f.write(header)
 		print("Done.")
 	else:
