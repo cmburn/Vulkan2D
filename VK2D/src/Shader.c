@@ -1,16 +1,16 @@
 /// \file Shader.c
 /// \author Paolo Mazzon
+#include <malloc.h>
+
+#include "VK2D/Opaque.h"
 #include "VK2D/Shader.h"
 #include "VK2D/Pipeline.h"
 #include "VK2D/Renderer.h"
-#include "VK2D/Buffer.h"
 #include "VK2D/Validation.h"
-#include "VK2D/DescriptorControl.h"
 #include "VK2D/Util.h"
-#include "VK2D/Opaque.h"
-#include <malloc.h>
+#include "VK2D/ShaderCompiler.h"
+#include "VK2D/RendererMeta.h"
 
-void _vk2dRendererAddShader(VK2DShader shader);
 void _vk2dRendererRemoveShader(VK2DShader shader);
 unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size);
 VkPipelineVertexInputStateCreateInfo _vk2dGetTextureVertexInputState();
@@ -68,7 +68,7 @@ VK2DShader vk2dShaderFrom(const uint8_t *vertexShaderBuffer, int vertexShaderBuf
 	    return NULL;
 
 	uint8_t *fragFile = _vk2dCopyBuffer(fragmentShaderBuffer, fragmentShaderBufferSize);
-    if (vertFile == NULL) {
+    if (fragFile == NULL) {
         free(vertFile);
         return NULL;
     }
@@ -113,14 +113,14 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
         return NULL;
     }
 
-	uint32_t vertFileSize, fragFileSize, i;
+	uint32_t vertFileSize, fragFileSize;
 
     uint8_t *vertFile = _vk2dLoadFile(vertexShader, &vertFileSize);
     if (vertFile == NULL)
         return NULL;
 
     uint8_t *fragFile = _vk2dLoadFile(fragmentShader, &fragFileSize);
-    if (vertFile == NULL) {
+    if (fragFile == NULL) {
         free(vertFile);
         return NULL;
     }
@@ -152,6 +152,47 @@ VK2DShader vk2dShaderLoad(const char *vertexShader, const char *fragmentShader, 
 	}
 
 	return out;
+}
+
+VK2DShader vk2dSlangLoad(const char *slangFile) {
+    uint32_t size;
+    const char *file = (void*)_vk2dLoadFile("assets/shader.slang", &size);
+
+    if (!file) {
+        return NULL;
+    }
+
+    VK2DCompiledShaders compiledShaders;
+    if (!_vk2dShaderCompile(file, size, &compiledShaders)) {
+        free((void*)file);
+        return NULL;
+    }
+    free((void*)file);
+
+    uint32_t vertShaderSize;
+    const uint8_t *vertShader = _vk2dRendererGetUserShader(&vertShaderSize);
+    VK2DShader shader = vk2dShaderFrom(
+            vertShader, vertShaderSize,
+            (void*)compiledShaders.fragmentSpirv, compiledShaders.fragmentSpirvSize,
+            compiledShaders.userDataSize);
+    free(compiledShaders.fragmentSpirv);
+    return shader;
+}
+
+VK2DShader vk2dSlangFrom(const char *slangFile, int slangFileSize) {
+    VK2DCompiledShaders compiledShaders;
+    if (!_vk2dShaderCompile(slangFile, slangFileSize, &compiledShaders)) {
+        return NULL;
+    }
+
+    uint32_t vertShaderSize;
+    const uint8_t *vertShader = _vk2dRendererGetUserShader(&vertShaderSize);
+    VK2DShader shader = vk2dShaderFrom(
+            vertShader, vertShaderSize,
+            (void*)compiledShaders.fragmentSpirv, compiledShaders.fragmentSpirvSize,
+            compiledShaders.userDataSize);
+    free(compiledShaders.fragmentSpirv);
+    return shader;
 }
 
 void vk2dShaderFree(VK2DShader shader) {

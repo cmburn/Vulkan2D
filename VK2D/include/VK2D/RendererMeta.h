@@ -43,6 +43,9 @@ void _vk2dRendererResetBoundPointers();
 // Gets the size of the rendered surface
 void _vk2dRendererGetSurfaceSize();
 
+// Returns SPIR-V of the user shader and its size
+const uint8_t *_vk2dRendererGetUserShader(uint32_t *size);
+
 /****************************** Renderer Initialization/Destruction ******************************/
 
 void _vk2dRendererCreateDebug();

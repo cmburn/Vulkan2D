@@ -322,6 +322,11 @@ void _vk2dRendererGetSurfaceSize() {
     }
 }
 
+const uint8_t *_vk2dRendererGetUserShader(uint32_t *size) {
+    *size = sizeof(VK2DVertUsershader);
+    return VK2DVertUsershader;
+}
+
 void _vk2dRendererCreateWindowSurface() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (gRenderer != NULL) {
