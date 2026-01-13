@@ -19,7 +19,7 @@ struct Push {
 
 // Texture and sampler
 [[vk::binding(1,1)]] SamplerState sampler;
-[[vk::binding(2,2)]] StructuredBuffer<DescriptorHandle<Texture2D<float4>>> textures;
+[[vk::binding(2,2)]] Texture2D<float4> textures[];
 
 // Optional user data
 struct UserData {
@@ -29,6 +29,6 @@ struct UserData {
 
 [shader("pixel")]
 float4 PixelShader(float2 uv) {
-    float4 uv_colour = textures[push.textureIndex].Sample(sampler, uv); // this is the problem
+    float4 uv_colour = textures[push.textureIndex].Sample(sampler, uv);
     return push.colour * uv_colour;
 }

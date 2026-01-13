@@ -35,7 +35,7 @@ out gl_PerVertex {
     vec4 gl_Position;
 };
 
-layout(location = 1) out vec2 fragTexCoord;
+layout(location = 0) out vec2 fragTexCoord;
 
 layout(set = 3, binding = 3) uniform UserData {
     float colour;
