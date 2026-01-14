@@ -63,8 +63,13 @@ int main(int argc, const char *argv[]) {
 		vk2dRendererStartFrame(clear);
 
         // Test shader
-        float val = 0;
-        vk2dDrawShader(testShader, &val, texCaveguy, 150, 150);
+        float val = vk2dTime() * 5;
+        vk2dRendererDrawShader(testShader, &val,
+                               texCaveguy,
+                               150, 150,
+                               10, 10,
+                               0, 0, 0,
+                               0, 0, 16, 16);
 
 		debugRenderOverlay();
 

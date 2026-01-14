@@ -6,7 +6,7 @@ struct Push {
     // Index of the texture to draw
     uint textureIndex;
 
-    // Where in texture to draw (x, y, w, h)
+    // Not needed in pixel shader
     float4 texturePos;
 
     // Current colour modifier
@@ -29,6 +29,14 @@ struct UserData {
 
 [shader("pixel")]
 float4 PixelShader(float2 uv) {
+    float a = 1;
+    float b = 0.3;
+    float val1 = ((a - b) / 2) * sin(((uv.y + uv.x) / 2) + (userData.time)) + (((a - b) / 2) + b);
+    float val2 = ((a - b) / 2) * sin(((uv.y + uv.x) / 2) + (userData.time + (3.141592635 * 0.25))) + (((a - b) / 2) + b);
+    float val3 = ((a - b) / 2) * sin(((uv.y + uv.x) / 2) + (userData.time + (3.141592635 * 0.5))) + (((a - b) / 2) + b);
     float4 uv_colour = textures[push.textureIndex].Sample(sampler, uv);
-    return push.colour * uv_colour;
+    return float4((0.5 * uv_colour.r) * push.colour.r * (val1 * 2),
+                  (0.5 * uv_colour.g) * push.colour.g * (val2 * 2),
+                  (0.5 * uv_colour.b) * push.colour.b * (val3 * 2),
+                  (uv_colour.a) * push.colour.a);
 }

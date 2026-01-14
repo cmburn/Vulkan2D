@@ -264,6 +264,9 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
 
 		// Initialize the random seed
 		SDL_SetAtomicInt(&gRNG, time(0));
+
+        // Initialize start time
+        gRenderer->startTicks = SDL_GetPerformanceCounter();
 	} else {
 		errorCode = VK2D_ERROR;
 		vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate renderer struct.");
