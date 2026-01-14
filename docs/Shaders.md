@@ -28,7 +28,7 @@ the C side when calling `vk2dRendererDrawShader`.
 
 For example, if you had in your shader
 
-```c++
+```c
 struct UserData {
     float time;
     vec4 colour;
