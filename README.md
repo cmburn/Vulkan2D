@@ -20,6 +20,7 @@ and Vulkan 1.2+.
  + Direct access to Vulkan (at your own risk)
  + Hardware-accelerated 2D light and shadows
  + High-performance sprite batching
+ + Simple and user-friendly shader interface
  + Only requires Vulkan 1.2
 
 ## Documentation
