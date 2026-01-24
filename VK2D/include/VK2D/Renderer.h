@@ -153,15 +153,9 @@ void vk2dRendererGetVRAMUsage(float *inUse, float *total);
 /// no reason to use this.
 void vk2dRendererResetSwapchain();
 
-/// \brief Sets up the renderer to prepare for drawing
-/// \param clearColour Colour to clear the screen to
-/// \warning Camera updates are applied in this function and any camera updates called after this
-/// function will not be applied until the next time this function is called.
-void vk2dRendererStartFrame(const vec4 clearColour);
-
-/// \brief Completes the end-of-frame drawing tasks
-/// \return Generally returns VK2D_SUCCESS, will return VK2D_RESET_SWAPCHAIN when the swapchain is reset
-VK2DResult vk2dRendererEndFrame();
+/// \brief Presents the frame
+/// Call this at the end of every frame to draw to the screen
+void vk2dRendererPresentFrame();
 
 /// \brief Returns the logical device being used by the renderer
 /// \return Returns the current logical device

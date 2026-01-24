@@ -693,6 +693,15 @@ void _vk2dRendererCreateDescriptorSetLayouts() {
 	VkDescriptorSetLayoutBinding descriptorSetLayoutBindingShapes[1];
 	descriptorSetLayoutBindingShapes[0] = vk2dInitDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT, VK_NULL_HANDLE);
 	VkDescriptorSetLayoutCreateInfo shapesDescriptorSetLayoutCreateInfo = vk2dInitDescriptorSetLayoutCreateInfo(descriptorSetLayoutBindingShapes, shapeLayoutCount);
+	shapesDescriptorSetLayoutCreateInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT_EXT;
+	const VkDescriptorBindingFlagsEXT cameraBufferFlags =
+		VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT;
+
+	VkDescriptorSetLayoutBindingFlagsCreateInfoEXT binding_flags = {0};
+	binding_flags.sType          = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO_EXT;
+	binding_flags.bindingCount   = 1;
+	binding_flags.pBindingFlags  = &cameraBufferFlags;
+	shapesDescriptorSetLayoutCreateInfo.pNext = &binding_flags;
 	r2 = vkCreateDescriptorSetLayout(gRenderer->ld->dev, &shapesDescriptorSetLayoutCreateInfo, VK_NULL_HANDLE, &gRenderer->dslBufferVP);
 
 	// For user-created shaders

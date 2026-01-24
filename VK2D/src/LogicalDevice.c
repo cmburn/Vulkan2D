@@ -67,7 +67,8 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
                 .descriptorBindingVariableDescriptorCount = VK_TRUE,
                 .descriptorBindingPartiallyBound = VK_TRUE,
                 .descriptorBindingUpdateUnusedWhilePending = VK_TRUE,
-                .descriptorBindingSampledImageUpdateAfterBind = VK_TRUE
+                .descriptorBindingSampledImageUpdateAfterBind = VK_TRUE,
+				.descriptorBindingUniformBufferUpdateAfterBind = VK_TRUE,
 		};
 
 		// Basic device create info

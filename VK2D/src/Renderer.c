@@ -46,7 +46,10 @@ static VK2DStartupOptions DEFAULT_STARTUP_OPTIONS = {
     .maxTextures = 10000
 };
 
-/******************************* User-visible functions *******************************/
+/******************************* User-visible functions (except for being/end kinda) *******************************/
+
+void vk2dRendererStartFrame(const vec4 clearColour);
+VK2DResult vk2dRendererEndFrame();
 
 VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const VK2DStartupOptions *options) {
 	gRenderer = calloc(1, sizeof(struct VK2DRenderer_t));
@@ -265,6 +268,9 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
 
 		// Initialize the random seed
 		SDL_SetAtomicInt(&gRNG, time(0));
+
+    	// Start the first frame
+    	vk2dRendererStartFrame(VK2D_BLACK);
 	} else {
 		errorCode = VK2D_ERROR;
 		vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate renderer struct.");
@@ -275,6 +281,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
 
 void vk2dRendererQuit() {
 	if (vk2dRendererGetPointer() != NULL) {
+		vk2dRendererEndFrame();
 	    if (gRenderer->ld != NULL && gRenderer->ld->queue != NULL)
 		    vkQueueWaitIdle(gRenderer->ld->queue);
 
@@ -439,12 +446,6 @@ void vk2dRendererStartFrame(const vec4 clearColour) {
             vk2dDescriptorBufferBeginFrame(gRenderer->descriptorBuffers[gRenderer->currentFrame], gRenderer->dbCommandBuffer[gRenderer->scImageIndex]);
             //gRenderer->spriteBatchCount = 0;
 
-			// Flush the current ubo into its buffer for the frame
-            for (int i = 0; i < VK2D_MAX_CAMERAS; i++)
-                if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL)
-                    _vk2dCameraUpdateUBO(&gRenderer->workingUBO, &gRenderer->cameras[i].spec, i);
-			_vk2dRendererFlushUBOBuffers();
-
 			// Desc cons
 			vk2dDescConReset(gRenderer->descConShaders[gRenderer->currentFrame]);
             vk2dDescConReset(gRenderer->descConCompute[gRenderer->currentFrame]);
@@ -483,6 +484,12 @@ VK2DResult vk2dRendererEndFrame() {
 		if (gRenderer->procedStartFrame) {
 		    // Flush whatevers on batch
 		    vk2dRendererFlushSpriteBatch();
+
+			// Flush the cameras into the ubo
+			for (int i = 0; i < VK2D_MAX_CAMERAS; i++)
+				if (gRenderer->cameras[i].state == VK2D_CAMERA_STATE_NORMAL)
+					_vk2dCameraUpdateUBO(&gRenderer->workingUBO, &gRenderer->cameras[i].spec, i);
+			_vk2dRendererFlushUBOBuffers();
 
 			gRenderer->procedStartFrame = false;
 
@@ -580,6 +587,13 @@ VK2DResult vk2dRendererEndFrame() {
 	}
 
 	return res;
+}
+
+void vk2dRendererPresentFrame() {
+	if (vk2dRendererGetPointer() == NULL)
+		return;
+	vk2dRendererEndFrame();
+	vk2dRendererStartFrame(VK2D_BLACK);
 }
 
 VK2DLogicalDevice vk2dRendererGetDevice() {

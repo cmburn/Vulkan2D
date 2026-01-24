@@ -168,9 +168,6 @@ int main(int argc, const char *argv[]) {
 		cam3D.h = windowHeight / 4;
 		vk2dCameraUpdate(camera3D, cam3D);
 
-		// All rendering must happen after this
-		vk2dRendererStartFrame(clear);
-
 		// Draw to the font surface
 		if (!drawnToTestSurface) {
 			drawnToTestSurface = true;
@@ -199,8 +196,7 @@ int main(int argc, const char *argv[]) {
 
 		debugRenderOverlay();
 
-		// End the frame
-		vk2dRendererEndFrame();
+		vk2dRendererPresentFrame();
 	}
 
 	// vk2dRendererWait must be called before freeing things
