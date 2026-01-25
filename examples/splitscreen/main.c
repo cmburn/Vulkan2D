@@ -100,9 +100,6 @@ int main(int argc, const char *argv[]) {
 		prevMX = x;
 		prevMY = y;
 
-		// All rendering must happen after this
-		vk2dRendererStartFrame(clear);
-
 		// We disable the default camera first since we don't want to draw to that (its used for ui here)
 		vk2dCameraSetState(VK2D_DEFAULT_CAMERA, VK2D_CAMERA_STATE_DISABLED);
 		vk2dDrawPolygon(testPoly, 0, 0);
@@ -118,7 +115,7 @@ int main(int argc, const char *argv[]) {
 
 		debugRenderOverlay();
 
-		vk2dRendererEndFrame();
+        vk2dRendererPresent();
 
 
 	}

@@ -155,7 +155,7 @@ void vk2dRendererResetSwapchain();
 
 /// \brief Presents the frame
 /// Call this at the end of every frame to draw to the screen
-void vk2dRendererPresentFrame();
+void vk2dRendererPresent();
 
 /// \brief Returns the logical device being used by the renderer
 /// \return Returns the current logical device

@@ -1,13 +1,9 @@
 /// \file DescriptorControl.c
 /// \author Paolo Mazzon
 #include "VK2D/DescriptorControl.h"
-#include "VK2D/Texture.h"
-#include "VK2D/Image.h"
-#include "VK2D/Buffer.h"
 #include "VK2D/Constants.h"
 #include "VK2D/Validation.h"
 #include "VK2D/Initializers.h"
-#include "VK2D/LogicalDevice.h"
 #include "VK2D/Opaque.h"
 #include <malloc.h>
 
@@ -44,6 +40,8 @@ static void _vk2dDescConAppendList(VK2DDescCon descCon) {
 		i++;
 	}
 	VkDescriptorPoolCreateInfo createInfo = vk2dInitDescriptorPoolCreateInfo(sizes, i, VK2D_DEFAULT_DESCRIPTOR_POOL_ALLOCATION);
+    if (descCon->updateAfterBind)
+        createInfo.flags |= VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
 	VkResult result = vkCreateDescriptorPool(descCon->dev->dev, &createInfo, VK_NULL_HANDLE, &descCon->pools[descCon->poolsInUse]);
 	if (result != VK_SUCCESS) {
         vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to create descriptor pool, Vulkan error %i.", result);
@@ -60,6 +58,9 @@ VkDescriptorSet _vk2dDescConGetAvailableSet(VK2DDescCon descCon) {
 	uint32_t i = 0;
 	VkResult res;
 	VkDescriptorSetAllocateInfo allocInfo = vk2dInitDescriptorSetAllocateInfo(VK_NULL_HANDLE, 1, &descCon->layout);
+
+    if (descCon->pools == NULL)
+        _vk2dDescConAppendList(descCon);
 
 	while (set == VK_NULL_HANDLE) {
 		allocInfo.descriptorPool = descCon->pools[i];
@@ -93,12 +94,16 @@ VK2DDescCon vk2dDescConCreate(VK2DLogicalDevice dev, VkDescriptorSetLayout layou
 		out->pools = NULL;
 		out->poolListSize = 0;
 		out->poolsInUse = 0;
-		_vk2dDescConAppendList(out);
+        out->updateAfterBind = false;
 	} else {
 	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate descriptor controller.");
 	}
 
 	return out;
+}
+
+void vk2dDescConUpdateAfterBind(VK2DDescCon descCon) {
+    descCon->updateAfterBind = true;
 }
 
 void vk2dDescConFree(VK2DDescCon descCon) {

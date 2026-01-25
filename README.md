@@ -76,11 +76,9 @@ while (!stopRunning) {
         }
     }
 
-    vk2dRendererStartFrame(clearColour);
-
     // Draw your things
 
-    vk2dRendererEndFrame();
+    vk2dRendererPresent();
 }
 
 vk2dRendererWait();

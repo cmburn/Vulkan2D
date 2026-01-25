@@ -74,9 +74,6 @@ int main(int argc, const char *argv[]) {
 		}
 		SDL_PumpEvents();
 
-		// All rendering must happen after this
-		vk2dRendererStartFrame(VK2D_BLACK);
-
 		// Clear the virtual target and start rendering to it
 		vk2dRendererSetTarget(texTarget);
 		vk2dRendererSetColourMod(clear);
@@ -104,7 +101,7 @@ int main(int argc, const char *argv[]) {
 		debugRenderOverlay();
 
 		// End the frame
-		vk2dRendererEndFrame();
+        vk2dRendererPresent();
 	}
 
 	// vk2dRendererWait must be called before freeing things

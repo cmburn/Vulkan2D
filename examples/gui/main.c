@@ -52,8 +52,6 @@ main(int argc, const char *argv[])
 		}
 		vk2dGuiEndInput();
 
-		vk2dRendererStartFrame(clear);
-
         if (nk_begin(vk2dGuiContext(), "Show", nk_rect(50, 50, 220, 220),
                      NK_WINDOW_BORDER|NK_WINDOW_MOVABLE|NK_WINDOW_CLOSABLE)) {
             // fixed widget pixel width
@@ -131,7 +129,7 @@ main(int argc, const char *argv[])
 
 
 		debugRenderOverlay();
-		vk2dRendererEndFrame();
+        vk2dRendererPresent();
 	}
 
 	// vk2dRendererWait must be called before freeing things

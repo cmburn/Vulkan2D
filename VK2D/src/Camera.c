@@ -66,6 +66,10 @@ void vk2dCameraSetState(VK2DCameraIndex index, VK2DCameraState state) {
 	    return;
 	}
 
+    // Don't allow users to delete the default camera
+    if (index == VK2D_DEFAULT_CAMERA && state == VK2D_CAMERA_STATE_DELETED)
+        return;
+
     vk2dRendererFlushSpriteBatch();
     gRenderer->cameras[index].state = state;
 }

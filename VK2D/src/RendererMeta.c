@@ -1092,6 +1092,7 @@ void _vk2dRendererCreateDescriptorPool(bool preserveDescCons) {
 		gRenderer->descConSamplers = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2, VK2D_NO_LOCATION);
 		gRenderer->descConSamplersOff = vk2dDescConCreate(gRenderer->ld, gRenderer->dslTexture, VK2D_NO_LOCATION, 2, VK2D_NO_LOCATION);
 		gRenderer->descConVP = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferVP, 0, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
+        vk2dDescConUpdateAfterBind(gRenderer->descConVP);
 		gRenderer->descConUser = vk2dDescConCreate(gRenderer->ld, gRenderer->dslBufferUser, 3, VK2D_NO_LOCATION, VK2D_NO_LOCATION);
 		for (int i = 0; i < VK2D_MAX_FRAMES_IN_FLIGHT; i++) {
             gRenderer->descConCompute[i] = vk2dDescConCreate(gRenderer->ld, gRenderer->dslSpriteBatch, VK2D_NO_LOCATION, VK2D_NO_LOCATION, 0);

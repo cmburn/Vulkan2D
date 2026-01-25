@@ -39,7 +39,7 @@ const vec2 POLY_1[] = {
         {151, 108},
         {74, 122},
 };
-const int POLY_1_COUNT = sizeof(POLY_1) / sizeof(vec2);
+#define POLY_1_COUNT (sizeof(POLY_1) / sizeof(vec2))
 
 const vec2 POLY_2[] = {
         {216, 79},
@@ -49,14 +49,14 @@ const vec2 POLY_2[] = {
         {363, 176},
         {293, 133},
 };
-const int POLY_2_COUNT = sizeof(POLY_2) / sizeof(vec2);
+#define POLY_2_COUNT (sizeof(POLY_2) / sizeof(vec2))
 
 const vec2 POLY_3[] = {
         {340, 228},
         {361, 250},
         {332, 248},
 };
-const int POLY_3_COUNT = sizeof(POLY_3) / sizeof(vec2);
+#define POLY_3_COUNT (sizeof(POLY_3) / sizeof(vec2))
 
 const vec2 POLY_4[] = {
         {232, 178},
@@ -65,7 +65,7 @@ const vec2 POLY_4[] = {
         {140, 230},
         {139, 226},
 };
-const int POLY_4_COUNT = sizeof(POLY_4) / sizeof(vec2);
+#define POLY_4_COUNT (sizeof(POLY_4) / sizeof(vec2))
 
 const vec2 POLY_5[] = {
         {42, 165},
@@ -73,7 +73,7 @@ const vec2 POLY_5[] = {
         {93, 220},
         {22, 218},
 };
-const int POLY_5_COUNT = sizeof(POLY_5) / sizeof(vec2);
+#define POLY_5_COUNT (sizeof(POLY_5) / sizeof(vec2))
 
 const vec2 MOVING_POLY[] = {
         {-10, 10},
@@ -81,11 +81,11 @@ const vec2 MOVING_POLY[] = {
         {10,-10},
         {-10, -10},
 };
-const int MOVING_POLY_COUNT = sizeof(MOVING_POLY) / sizeof(vec2);
+#define MOVING_POLY_COUNT (sizeof(MOVING_POLY) / sizeof(vec2))
 
 const vec2 *POLYGONS[] = {POLY_1, POLY_2, POLY_3, POLY_4, POLY_5, MOVING_POLY};
 const int POLYGON_COUNTS[] = {POLY_1_COUNT, POLY_2_COUNT, POLY_3_COUNT, POLY_4_COUNT, POLY_5_COUNT, MOVING_POLY_COUNT};
-const int POLYGON_COUNT = 6;
+#define POLYGON_COUNT 6
 
 int main(int argc, const char *argv[]) {
     // Basic SDL setup
@@ -213,9 +213,6 @@ int main(int argc, const char *argv[]) {
         playerY = playerY > windowHeight * 0.5 ? -vk2dTextureHeight(playerTex) : (playerY < -vk2dTextureHeight(playerTex) ? windowHeight * 0.5 : playerY);
         mousePolyRot += VK2D_PI * 0.01;
 
-        // All rendering must happen after this
-        vk2dRendererStartFrame(clear);
-
         // Lock framerate to 60
         vk2dSleep((((double)SDL_GetPerformanceFrequency() / 60) - ((double)SDL_GetPerformanceCounter() - lastTime)) / SDL_GetPerformanceFrequency());
         lastTime = SDL_GetPerformanceCounter();
@@ -264,7 +261,7 @@ int main(int argc, const char *argv[]) {
         debugRenderOverlay();
 
         // End the frame
-        vk2dRendererEndFrame();
+        vk2dRendererPresent();
     }
 
     // vk2dRendererWait must be called before freeing things

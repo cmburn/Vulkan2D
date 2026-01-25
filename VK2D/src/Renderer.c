@@ -589,7 +589,7 @@ VK2DResult vk2dRendererEndFrame() {
 	return res;
 }
 
-void vk2dRendererPresentFrame() {
+void vk2dRendererPresent() {
 	if (vk2dRendererGetPointer() == NULL)
 		return;
 	vk2dRendererEndFrame();

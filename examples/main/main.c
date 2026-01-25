@@ -196,7 +196,7 @@ int main(int argc, const char *argv[]) {
 
 		debugRenderOverlay();
 
-		vk2dRendererPresentFrame();
+        vk2dRendererPresent();
 	}
 
 	// vk2dRendererWait must be called before freeing things

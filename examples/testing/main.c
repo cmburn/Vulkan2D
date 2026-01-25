@@ -72,14 +72,12 @@ int main(int argc, const char *argv[]) {
 		int windowWidth, windowHeight;
 		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
 
-		vk2dRendererStartFrame(clear);
-
         vk2dRendererAddBatch(commands, 8192);
         //vk2dRendererFlushSpriteBatch();
 
 		debugRenderOverlay();
 
-		vk2dRendererEndFrame();
+        vk2dRendererPresent();
 	}
 
 	// vk2dRendererWait must be called before freeing things

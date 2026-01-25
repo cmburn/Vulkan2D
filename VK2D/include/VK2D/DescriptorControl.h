@@ -15,6 +15,11 @@ extern "C" {
 /// \return New descriptor controller or NULL if it failed
 VK2DDescCon vk2dDescConCreate(VK2DLogicalDevice dev, VkDescriptorSetLayout layout, uint32_t buffer, uint32_t sampler, uint32_t storageBuffer);
 
+/// \brief Tells the desc con to allocate pools with update after bind
+/// \param descCon Desc con to enable this one
+/// \warning Make sure the DSL for this desc con had update after bind specified
+void vk2dDescConUpdateAfterBind(VK2DDescCon descCon);
+
 /// \brief Frees a descriptor controller from memory
 /// \param descCon Descriptor controller to free
 void vk2dDescConFree(VK2DDescCon descCon);
