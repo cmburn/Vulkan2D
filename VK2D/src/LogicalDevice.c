@@ -114,31 +114,6 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
             free(ldev);
             return NULL;
         }
-
-		if (gRenderer->limits.supportsMultiThreadLoading) {
-            vk2dLogInfo("Creating worker thread...");
-			ldev->loadList = NULL;
-			ldev->loadListMutex = SDL_CreateMutex();
-			ldev->shaderMutex = SDL_CreateMutex();
-
-			SDL_SetAtomicInt(&ldev->loadListSize, 0);
-			SDL_SetAtomicInt(&ldev->quitThread, 0);
-			SDL_SetAtomicInt(&ldev->loads, 0);
-			SDL_SetAtomicInt(&ldev->doneLoading, 1);
-			gDeviceFromMainThread = ldev;
-			ldev->workerThread = SDL_CreateThread(_vk2dWorkerThread, "VK2D_Load", NULL);
-
-			if (ldev->loadListMutex == NULL || ldev->workerThread == NULL || ldev->shaderMutex == NULL) {
-                vk2dRaise(VK2D_STATUS_SDL_ERROR, "Failed to initialize worker thread, SDL error: %s", SDL_GetError());
-                gRenderer->limits.supportsMultiThreadLoading = false;
-                SDL_DestroyMutex(ldev->loadListMutex);
-                SDL_DestroyMutex(ldev->shaderMutex);
-                SDL_DetachThread(ldev->workerThread);
-                ldev->loadListMutex = NULL;
-                ldev->shaderMutex = NULL;
-                ldev->workerThread = NULL;
-            }
-		}
 	} else {
 	    vk2dRaise(VK2D_STATUS_OUT_OF_RAM, "Failed to allocate logical device.");
 	}
@@ -147,16 +122,7 @@ VK2DLogicalDevice vk2dLogicalDeviceCreate(VK2DPhysicalDevice dev, bool enableAll
 }
 
 void vk2dLogicalDeviceFree(VK2DLogicalDevice dev) {
-	VK2DRenderer gRenderer = vk2dRendererGetPointer();
 	if (dev != NULL) {
-		SDL_SetAtomicInt(&dev->quitThread, 1);
-		int status;
-		if (gRenderer->limits.supportsMultiThreadLoading) {
-			SDL_WaitThread(dev->workerThread, &status);
-			SDL_DestroyMutex(dev->loadListMutex);
-			SDL_DestroyMutex(dev->shaderMutex);
-			vkDestroyCommandPool(dev->dev, dev->loadPool, VK_NULL_HANDLE);
-		}
 		vkDestroyCommandPool(dev->dev, dev->pool, VK_NULL_HANDLE);
 		vkDestroyDevice(dev->dev, VK_NULL_HANDLE);
 		free(dev);
@@ -194,10 +160,8 @@ void vk2dLogicalDeviceFreeCommandBuffer(VK2DLogicalDevice dev, VkCommandBuffer b
 	vkFreeCommandBuffers(dev->dev, dev->pool, 1, &buffer);
 }
 
-VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev, bool mainThread) {
+VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev) {
 	VkCommandBufferAllocateInfo allocInfo = vk2dInitCommandBufferAllocateInfo(dev->pool, 1);
-	if (!mainThread)
-		allocInfo.commandPool = dev->loadPool;
 	VkCommandBuffer buffer;
 	VkResult result = vkAllocateCommandBuffers(dev->dev, &allocInfo, &buffer);
     if (result != VK_SUCCESS) {
@@ -211,34 +175,20 @@ VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev, bool 
 	return buffer;
 }
 
-void vk2dLogicalDeviceSubmitSingleBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer, bool mainThread) {
+void vk2dLogicalDeviceSubmitSingleBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer) {
 	VkSubmitInfo submitInfo = vk2dInitSubmitInfo(&buffer, 1, VK_NULL_HANDLE, 0, VK_NULL_HANDLE, 0, VK_NULL_HANDLE);
 	vkEndCommandBuffer(buffer);
-	if (mainThread) {
-		VkResult result = vkQueueSubmit(dev->queue, 1, &submitInfo, VK_NULL_HANDLE);
+	VkResult result = vkQueueSubmit(dev->queue, 1, &submitInfo, VK_NULL_HANDLE);
+    if (result == VK_SUCCESS) {
+        result = vkQueueWaitIdle(dev->queue);
         if (result == VK_SUCCESS) {
-            result = vkQueueWaitIdle(dev->queue);
-            if (result == VK_SUCCESS) {
-                vkFreeCommandBuffers(dev->dev, dev->pool, 1, &buffer);
-            } else {
-                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to wait for queue, Vulkan error %i", result);
-            }
+            vkFreeCommandBuffers(dev->dev, dev->pool, 1, &buffer);
         } else {
-            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to submit queue, Vulkan error %i", result);
+            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to wait for queue, Vulkan error %i", result);
         }
-	} else {
-		VkResult result = vkQueueSubmit(dev->loadQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        if (result == VK_SUCCESS) {
-            result = vkQueueWaitIdle(dev->loadQueue);
-            if (result == VK_SUCCESS) {
-                vkFreeCommandBuffers(dev->dev, dev->loadPool, 1, &buffer);
-            } else {
-                vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to wait for queue, Vulkan error %i", result);
-            }
-        } else {
-            vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to submit queue, Vulkan error %i", result);
-        }
-	}
+    } else {
+        vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to submit queue, Vulkan error %i", result);
+    }
 }
 
 VkFence vk2dLogicalDeviceGetFence(VK2DLogicalDevice dev, VkFenceCreateFlagBits flags) {

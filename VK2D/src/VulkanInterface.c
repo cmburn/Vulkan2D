@@ -9,12 +9,12 @@
 
 VkCommandBuffer vk2dVulkanGetSingleUseBuffer() {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	return vk2dLogicalDeviceGetSingleUseBuffer(gRenderer->ld, true);
+	return vk2dLogicalDeviceGetSingleUseBuffer(gRenderer->ld);
 }
 
 void vk2dVulkanSubmitSingleUseBuffer(VkCommandBuffer buffer) {
 	VK2DRenderer gRenderer = vk2dRendererGetPointer();
-	vk2dLogicalDeviceSubmitSingleBuffer(gRenderer->ld, buffer, true);
+	vk2dLogicalDeviceSubmitSingleBuffer(gRenderer->ld, buffer);
 }
 
 VkCommandBuffer vk2dVulkanGetDrawBuffer() {

@@ -23,6 +23,7 @@
 #include "VK2D/Pipeline.h"
 #include "VK2D/Logger.h"
 #include "VK2D/nuklear_defs.h"
+#include "VK2D/ShaderCompiler.h"
 
 /******************************* Forward declarations *******************************/
 
@@ -251,6 +252,7 @@ VK2DResult vk2dRendererInit(SDL_Window *window, VK2DRendererConfig config, const
 		_vk2dRendererCreateSynchronization();
 		_vk2dRendererCreateSpriteBatching();
 		_vk2dRendererInitNuklear();
+        _vk2dInitShaderCompiler();
 
 		// Quit if something failed
         if (vk2dStatusFatal()) {
@@ -286,6 +288,7 @@ void vk2dRendererQuit() {
 		    vkQueueWaitIdle(gRenderer->ld->queue);
 
 		// Destroy subsystems
+        _vk2dQuitShaderCompiler();
         _vk2dRendererQuitNuklear();
         _vk2dRendererDestroySpriteBatching();
 		_vk2dRendererDestroySynchronization();

@@ -29,7 +29,7 @@ Uint32 amask = 0xff000000;
 // Internal functions
 
 static void _vk2dImageCopyBufferToImage(VK2DLogicalDevice dev, VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, bool mainThread) {
-	VkCommandBuffer commandBuffer = vk2dLogicalDeviceGetSingleUseBuffer(dev, mainThread);
+	VkCommandBuffer commandBuffer = vk2dLogicalDeviceGetSingleUseBuffer(dev);
 	if (commandBuffer == VK_NULL_HANDLE)
 	    return;
 
@@ -56,11 +56,11 @@ static void _vk2dImageCopyBufferToImage(VK2DLogicalDevice dev, VkBuffer buffer, 
 			&region
 	);
 
-	vk2dLogicalDeviceSubmitSingleBuffer(dev, commandBuffer, mainThread);
+	vk2dLogicalDeviceSubmitSingleBuffer(dev, commandBuffer);
 }
 
 void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkImageLayout oldLayout, VkImageLayout newLayout, bool mainThread) {
-	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(dev, mainThread);
+	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(dev);
     if (buffer == VK_NULL_HANDLE)
         return;
 	VkPipelineStageFlags sourceStage = 0;
@@ -116,7 +116,7 @@ void _vk2dImageTransitionImageLayout(VK2DLogicalDevice dev, VkImage image, VkIma
 			1, &barrier
 	);
 
-	vk2dLogicalDeviceSubmitSingleBuffer(dev, buffer, mainThread);
+	vk2dLogicalDeviceSubmitSingleBuffer(dev, buffer);
 }
 
 // End of internal functions

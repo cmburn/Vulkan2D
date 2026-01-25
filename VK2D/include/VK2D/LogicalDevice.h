@@ -68,7 +68,7 @@ void vk2dLogicalDeviceFreeCommandBuffer(VK2DLogicalDevice dev, VkCommandBuffer b
 /// \param dev Logical device to use
 /// \param mainThread Whether or not the command buffer should be in the main thread or not
 /// \return Returns a new command buffer in the recording state
-VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev, bool mainThread);
+VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev);
 
 /// \brief Submits a single use command buffer
 /// \param dev Device it belongs to
@@ -77,7 +77,7 @@ VkCommandBuffer vk2dLogicalDeviceGetSingleUseBuffer(VK2DLogicalDevice dev, bool 
 ///
 /// To be more specific, this will submit the command buffer then wait for the queue
 /// to idle. After that it will free the buffer.
-void vk2dLogicalDeviceSubmitSingleBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer, bool mainThread);
+void vk2dLogicalDeviceSubmitSingleBuffer(VK2DLogicalDevice dev, VkCommandBuffer buffer);
 
 /// \brief Grabs a fence from a logical device
 /// \param dev Logical device to get the fence from

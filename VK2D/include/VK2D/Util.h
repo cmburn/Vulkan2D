@@ -36,9 +36,6 @@ unsigned char* _vk2dLoadFile(const char *filename, uint32_t *size);
 /// \brief Copies a string
 unsigned char *_vk2dCopyBuffer(const void *buffer, int size);
 
-/// \brief Worker thread for off-thread loading
-int _vk2dWorkerThread(void *data);
-
 /// \brief The internal texture creation function
 VK2DTexture _vk2dTextureFromInternal(const void *data, int size, bool mainThread);
 

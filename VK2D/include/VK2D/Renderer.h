@@ -440,102 +440,16 @@ void vk2dRendererFlushSpriteBatch();
 /// initializes the seed to system time.
 float vk2dRandom(float min, float max);
 
-/// \brief Loads a number of assets in a background thread
-/// \param assets Array of VK2DAssetLoad structs that specify each asset you wish to load. The list is copied but not the data/strings inside it.
-/// \param count Number of VK2DAssetLoad structs in the array
-/// \warning Pointers allocated this way are not guaranteed to be valid until after vk2dAssetsWait
-/// \warning You may not call this again until vk2dAssetsWait is called
-/// \warning If vk2dRendererGetLimits().supportsMultiThreadLoading is false this will perform the asset load on the main thread (and be blocking)
-///
-/// This function will load each asset in the assets list in another thread in the background
-/// so you may do other things to prepare your application. In essence its a non-blocking way
-/// to load your resources. If `vk2dRendererGetLimits().supportsMultiThreadLoading` is false
-/// this function will still load all of the specified assets, but it will be done on the main
-/// thread instead which will be blocking.
-///
-/// \warning This is currently unsupported until it is re-implemented in a more cross-platform manner
-void vk2dAssetsLoad(VK2DAssetLoad *assets, uint32_t count);
-
-/// \brief Waits until all of the assets provided to vk2dAssetsLoad have been loaded
-/// \warning If vk2dRendererGetLimits().supportsMultiThreadLoading is false this does nothing
-///
-/// Typically you would use vk2dAssetsLoad after you initialize VK2D, then do your other
-/// things to initialize your program, then call this once you need to start using your
-/// resources to make sure they're available in time.
-void vk2dAssetsWait();
-
-/// \brief Returns the loading status as a percentage from 0-1
-/// \return Returns a status where 0 is nothing is loaded and 1 is everything is loaded
-/// \warning If vk2dRendererGetLimits().supportsMultiThreadLoading is false this will return 1
-float vk2dAssetsLoadStatus();
-
-/// \brief Returns true if the assets thread is done loading assets
-/// \warning If vk2dRendererGetLimits().supportsMultiThreadLoading is false this returns true
-bool vk2dAssetsLoadComplete();
-
-/// \brief Uses the same asset list you passed to vk2dAssetsLoad to free all the assets in one call
-/// \param assets Assets to free
-/// \param count Number of assets in the array
-void vk2dAssetsFree(VK2DAssetLoad *assets, uint32_t count);
-
-/// \brief Sets up a VK2DAssetLoad array entry for a TextureFile entry
-/// \param array VK2DAssetLoad array that will be written to
-/// \param index Index in the array to write to
-/// \param filename Texture's filename
-/// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
-void vk2dAssetsSetTextureFile(VK2DAssetLoad *array, int index, const char *filename, VK2DTexture *outVar);
-
-/// \brief Sets up a VK2DAssetLoad array entry for a TextureMemory entry
-/// \param array VK2DAssetLoad array that will be written to
-/// \param index Index in the array to write to
-/// \param buffer Texture's file buffer
-/// \param size Size of the file buffer in bytes
-/// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
-void vk2dAssetsSetTextureMemory(VK2DAssetLoad *array, int index, void *buffer, int size, VK2DTexture *outVar);
-
-/// \brief Sets up a VK2DAssetLoad array entry for a ModelFile entry
-/// \param array VK2DAssetLoad array that will be written to
-/// \param index Index in the array to write to
-/// \param filename Model's filename
-/// \param texture Texture to bind to the model
-/// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
-void vk2dAssetsSetModelFile(VK2DAssetLoad *array, int index, const char *filename, VK2DTexture *texture, VK2DModel *outVar);
-
-/// \brief Sets up a VK2DAssetLoad array entry for a ModelMemory entry
-/// \param array VK2DAssetLoad array that will be written to
-/// \param index Index in the array to write to
-/// \param buffer Model's file buffer
-/// \param size Size of the file buffer in bytes
-/// \param texture Texture to bind to the model
-/// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
-void vk2dAssetsSetModelMemory(VK2DAssetLoad *array, int index, void *buffer, int size, VK2DTexture *texture, VK2DModel *outVar);
-
-/// \brief Sets up a VK2DAssetLoad array entry for a ShaderFile entry
-/// \param array VK2DAssetLoad array that will be written to
-/// \param index Index in the array to write to
-/// \param vertexFilename Filename of the vertex shader
-/// \param fragmentFilename Filename of the fragment shader
-/// \param uniformBufferSize Uniform buffer size
-/// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
-void vk2dAssetsSetShaderFile(VK2DAssetLoad *array, int index, const char *vertexFilename, const char *fragmentFilename, uint32_t uniformBufferSize, VK2DShader *outVar);
-
-/// \brief Sets up a VK2DAssetLoad array entry for a ShaderMemory entry
-/// \param array VK2DAssetLoad array that will be written to
-/// \param index Index in the array to write to
-/// \param vertexBuffer File buffer for the vertex shader
-/// \param vertexBufferSize Size of the vertex buffer in bytes
-/// \param fragmentBuffer File buffer for the fragment shader
-/// \param fragmentBufferSize Size of the fragment buffer in bytes
-/// \param uniformBufferSize Uniform buffer size
-/// \param outVar Variable that, once the asset is loaded, will contain the loaded asset
-void vk2dAssetsSetShaderMemory(VK2DAssetLoad *array, int index, void *vertexBuffer, int vertexBufferSize, void *fragmentBuffer, int fragmentBufferSize, uint32_t uniformBufferSize, VK2DShader *outVar);
-
 /// \brief Combines busy loops and SDL_Delay for a more accurate sleep function
 /// \param seconds Time in seconds to sleep - values equal or less than 0 do nothing
 ///
 /// This is a much more accurate sleep function that something like SDL_Delay without taxing
 /// the CPU as much as a simple busy loop.
 void vk2dSleep(double seconds);
+
+/// \brief Returns the time in seconds since Vulkan2D was initialized
+/// \return Returns the time in seconds since Vulkan2D was initialized
+double vk2dTime();
 
 /// \brief Gets the renderer's current status code.
 /// \return Returns the most recent status code

@@ -118,14 +118,14 @@ VK2DBuffer vk2dBufferLoad2(VK2DLogicalDevice dev, VkDeviceSize size, VkBufferUsa
 void vk2dBufferCopy(VK2DBuffer src, VK2DBuffer dst, bool mainThread) {
     if (vk2dRendererGetPointer() == NULL || vk2dStatusFatal())
         return;
-	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(src->dev, mainThread);
+	VkCommandBuffer buffer = vk2dLogicalDeviceGetSingleUseBuffer(src->dev);
 	if (buffer != VK_NULL_HANDLE) {
         VkBufferCopy copyRegion = {0};
         copyRegion.size = src->size;
         copyRegion.dstOffset = 0;
         copyRegion.srcOffset = 0;
         vkCmdCopyBuffer(buffer, src->buf, dst->buf, 1, &copyRegion);
-        vk2dLogicalDeviceSubmitSingleBuffer(src->dev, buffer, mainThread);
+        vk2dLogicalDeviceSubmitSingleBuffer(src->dev, buffer);
     }
 }
 

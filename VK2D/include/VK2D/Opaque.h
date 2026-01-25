@@ -35,15 +35,6 @@ struct VK2DLogicalDevice_t {
 	VkQueue loadQueue;          ///< Queue for off-thread loading
 	VK2DPhysicalDevice pd;      ///< Physical device this came from
 	VkCommandPool pool;         ///< Command pools to cycle through
-	VkCommandPool loadPool;     ///< Command pool for off-thread loading
-	SDL_AtomicInt loadListSize; ///< Size of the asset load list
-	VK2DAssetLoad *loadList;    ///< Assets that need to be loaded
-	SDL_Mutex *loadListMutex;   ///< Mutex for asset load list synchronization
-	SDL_Thread *workerThread;   ///< Thread that loads assets
-	SDL_AtomicInt quitThread;   ///< How to tell the thread to quit
-	SDL_AtomicInt loads;        ///< Number of loads waiting in the list
-	SDL_AtomicInt doneLoading;  ///< To know when loading is complete
-    SDL_Mutex *shaderMutex;     ///< Mutex for creating shaders
 };
 
 /// \brief An internal representation of a camera (the user deals with VK2DCameraIndex, the renderer uses this struct)
@@ -54,6 +45,13 @@ typedef struct VK2DCamera {
 	VK2DCameraSpec spec;           ///< Info on how to create the UBO and scissor/viewport
 	VK2DCameraState state;         ///< State of this camera
 } VK2DCamera;
+
+/// \brief Return value for compiling a shader
+typedef struct VK2DCompiledShaders_t {
+    uint32_t *fragmentSpirv;
+    uint32_t fragmentSpirvSize;
+    uint32_t userDataSize;
+} VK2DCompiledShaders;
 
 /// \brief Makes managing buffers in Vulkan simpler
 struct VK2DBuffer_t {
@@ -344,6 +342,7 @@ struct VK2DRenderer_t {
 	double amountOfFrames;   ///< Number of frames needed to calculate frameTimeAverage
 	double accumulatedTime;  ///< Total time of frames for average in ms
 	double frameTimeAverage; ///< Average amount of time frames are taking over a second (in ms)
+	uint64_t startTicks;     ///< For the time function
 
 	// Sprite batching
 	VK2DDrawCommand *drawCommands;       ///< User-side draw commands

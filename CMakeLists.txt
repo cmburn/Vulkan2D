@@ -7,11 +7,26 @@ option(VK2D_BUILD_SDL "Build SDL3 with VK2D" ON)
 # VK2D requires C11 and C++17
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Dependencies
 find_package(Vulkan REQUIRED)
+set(Slang_ENABLE_GFX OFF)
+set(Slang_ENABLE_SLANG_GLSLANG OFF)
+set(Slang_ENABLE_SLANG_GLSLANG_SHARED OFF)
+set(Slang_ENABLE_SLANGC OFF)
+set(Slang_ENABLE_SLANGD OFF)
+set(Slang_ENABLE_SLANGRT OFF)
+set(Slang_ENABLE_SLANG_TESTS OFF)
+set(Slang_ENABLE_EXAMPLES OFF)
+set(Slang_ENABLE_TOOLS OFF)
+set(Slang_ENABLE_CUDA OFF)
+set(Slang_ENABLE_DXC OFF)
+set(Slang_ENABLE_OPTIX OFF)
+set(Slang_ENABLE_NVAPI OFF)
+set(Slang_ENABLE_AFTERMATH OFF)
+add_subdirectory(extern/slang)
 if(VK2D_BUILD_SDL)
     add_subdirectory(extern/SDL)
     set(EXTRA_INCLUDE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/SDL/include>)
@@ -42,6 +57,7 @@ add_library(Vulkan2D
         VK2D/src/Util.c
         VK2D/src/Validation.c
         VK2D/src/VulkanInterface.c
+        VK2D/src/ShaderCompiler.cpp
         extern/VulkanMemoryAllocator/src/VmaUsage.cpp
 )
 
@@ -59,6 +75,7 @@ target_link_libraries(Vulkan2D
         PUBLIC
         Vulkan::Vulkan
         PRIVATE
+        slang
         $<$<TARGET_EXISTS:SDL3::SDL3>:SDL3::SDL3>
         $<$<TARGET_EXISTS:SDL3::SDL3-shared>:SDL3::SDL3-shared>
         $<$<TARGET_EXISTS:SDL3::SDL3-static>:SDL3::SDL3-static>
