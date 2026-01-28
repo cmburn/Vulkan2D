@@ -102,15 +102,13 @@ SDL_DestroyWindow(window);
 SDL_Quit();
 ```
 
-## Running the Examples
-Be sure to compile the test shader before running the `examples/main/` example with:
-
-    glslc assets/test.frag -o assets/test.frag.spv
-    glslc assets/test.vert -o assets/test.vert.spv
-
-Then build the `CMakeLists.txt` file with the flag `-DVK2D_BUILD_EXAMPLES:BOOL=ON`.
+To run the examples in the `examples/` folder, build the `CMakeLists.txt` file with the flag `-DVK2D_BUILD_EXAMPLES:BOOL=ON`.
 
 ## Roadmap
 
- + Better shader support
  + Texture readback
+ + Stability improvements
+ + Remove or improve 3D
+ + API lock
+
+
