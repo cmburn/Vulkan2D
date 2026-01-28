@@ -3,6 +3,7 @@ project(Vulkan2D LANGUAGES C CXX)
 
 option(VK2D_BUILD_EXAMPLES "Build examples for Vulkan2D" OFF)
 option(VK2D_BUILD_SDL "Build SDL3 with VK2D" ON)
+option(VK2D_DISABLE_SHADERS "Disable shader support" OFF)
 
 # VK2D requires C11 and C++17
 set(CMAKE_C_STANDARD 11)
@@ -12,25 +13,29 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Dependencies
 find_package(Vulkan REQUIRED)
-set(Slang_ENABLE_GFX OFF)
-set(Slang_ENABLE_SLANG_GLSLANG OFF)
-set(Slang_ENABLE_SLANG_GLSLANG_SHARED OFF)
-set(Slang_ENABLE_SLANGC OFF)
-set(Slang_ENABLE_SLANGD OFF)
-set(Slang_ENABLE_SLANGRT OFF)
-set(Slang_ENABLE_SLANG_TESTS OFF)
-set(Slang_ENABLE_EXAMPLES OFF)
-set(Slang_ENABLE_TOOLS OFF)
-set(Slang_ENABLE_CUDA OFF)
-set(Slang_ENABLE_DXC OFF)
-set(Slang_ENABLE_OPTIX OFF)
-set(Slang_ENABLE_NVAPI OFF)
-set(Slang_ENABLE_AFTERMATH OFF)
-add_subdirectory(extern/slang)
-if(VK2D_BUILD_SDL)
+if (NOT VK2D_DISABLE_SHADERS)
+    set(Slang_ENABLE_GFX OFF)
+    set(Slang_ENABLE_SLANG_GLSLANG OFF)
+    set(Slang_ENABLE_SLANG_GLSLANG_SHARED OFF)
+    set(Slang_ENABLE_SLANGC OFF)
+    set(Slang_ENABLE_SLANGD OFF)
+    set(Slang_ENABLE_SLANGRT OFF)
+    set(Slang_ENABLE_SLANG_TESTS OFF)
+    set(Slang_ENABLE_EXAMPLES OFF)
+    set(Slang_ENABLE_TOOLS OFF)
+    set(Slang_ENABLE_CUDA OFF)
+    set(Slang_ENABLE_DXC OFF)
+    set(Slang_ENABLE_OPTIX OFF)
+    set(Slang_ENABLE_NVAPI OFF)
+    set(Slang_ENABLE_AFTERMATH OFF)
+    add_subdirectory(extern/slang)
+else ()
+    add_compile_definitions(DISABLE_SHADER_COMPILATION)
+endif ()
+if (VK2D_BUILD_SDL)
     add_subdirectory(extern/SDL)
     set(EXTRA_INCLUDE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/SDL/include>)
-endif()
+endif ()
 
 # Vulkan2D
 add_library(Vulkan2D
@@ -75,11 +80,13 @@ target_link_libraries(Vulkan2D
         PUBLIC
         Vulkan::Vulkan
         PRIVATE
-        slang
         $<$<TARGET_EXISTS:SDL3::SDL3>:SDL3::SDL3>
         $<$<TARGET_EXISTS:SDL3::SDL3-shared>:SDL3::SDL3-shared>
         $<$<TARGET_EXISTS:SDL3::SDL3-static>:SDL3::SDL3-static>
 )
+if (NOT VK2D_DISABLE_SHADERS)
+    target_link_libraries(Vulkan2D PRIVATE slang)
+endif ()
 
 if(VK2D_BUILD_EXAMPLES)
     add_subdirectory(examples/main)

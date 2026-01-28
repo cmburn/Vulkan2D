@@ -1,22 +1,28 @@
 /// This file is C++ whereas the rest of Vulkan2D's source code is C. This is because
 /// Slang only provides a C++ interface for compiling shaders, so we wrap the C++ code
 /// in an extern C interface the rest of the renderer can use.
+#ifndef DISABLE_SHADER_COMPILATION
 #include <slang-com-ptr.h>
+#endif
 #include <string>
 #include "VK2D/ShaderCompiler.h"
 #include "VK2D/Validation.h"
 #include "VK2D/Logger.h"
 
+#ifndef DISABLE_SHADER_COMPILATION
 using namespace slang;
 static Slang::ComPtr<IGlobalSession> gGlobalSession;
+#endif // DISABLE_SHADER_COMPILATION
 
 void _vk2dInitShaderCompiler() {
+#ifndef DISABLE_SHADER_COMPILATION
     // Create the global session
     SlangGlobalSessionDesc globalSessionDesc = {0};
     SlangResult result = createGlobalSession(&globalSessionDesc, gGlobalSession.writeRef());
     if (!SLANG_SUCCEEDED(result)) {
         vk2dRaise(VK2D_STATUS_VULKAN_ERROR, "Failed to initialize global Slang session, %s", slang_getLastInternalErrorMessage());
     }
+#endif // DISABLE_SHADER_COMPILATION
 }
 
 void _vk2dQuitShaderCompiler() {
@@ -24,6 +30,7 @@ void _vk2dQuitShaderCompiler() {
 }
 
 bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledShaders *compiledShaders) {
+#ifndef DISABLE_SHADER_COMPILATION
     memset(compiledShaders, 0, sizeof(VK2DCompiledShaders));
 
     // Create the local session
@@ -195,4 +202,7 @@ bool _vk2dShaderCompile(const char *shader, uint32_t shaderSize, VK2DCompiledSha
     compiledShaders->userDataSize = userDataSize;
 
     return true;
+#endif // DISABLE_SHADER_COMPILATION
+    vk2dLogInfo("Shaders not enabled.");
+    return false;
 }

@@ -4,7 +4,7 @@
 
 ![example](https://github.com/user-attachments/assets/186de874-6f2f-47c4-8a58-52c14148bb46)
 
-![example](https://github.com/user-attachments/assets/9a43483b-0bdd-4511-98a3-9ca839b070d5)
+![example](https://github.com/user-attachments/assets/499ce5ce-5783-4bfe-a16c-e694df15944c)
 
 # Vulkan2D
 [Vulkan2D](https://github.com/PaoloMazzon/Vulkan2D) is a 2D renderer using Vulkan and SDL3 primarily for C games. VK2D 
@@ -52,6 +52,16 @@ then you can do so with
 set(VK2D_BUILD_SDL OFF)
 add_subdirectory(Vulkan2D/)
 ```
+
+You may also disable shader support entirely by supplying 
+
+```cmake
+set(VK2D_DISABLE_SHADERS ON)
+add_subdirectory(Vulkan2D/)
+```
+
+This is an option because compiling Slang is a lengthy process and for projects that don't
+require them this can save users a significant amount of time.
 
 ## Example
 
