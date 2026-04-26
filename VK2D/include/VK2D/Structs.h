@@ -186,6 +186,9 @@ VK2D_OPAQUE_POINTER(VK2DDescriptorBuffer)
 VK2D_OPAQUE_POINTER(VK2DShadowEnvironment)
 VK2D_OPAQUE_POINTER(VK2DGui)
 
+
+#ifndef VK2D_DISABLE_VECTOR_TYPES
+
 /// \brief 2D vector of floats
 typedef float vec2[2];
 
@@ -197,6 +200,8 @@ typedef float vec4[4];
 
 /// \brief 4x4 matrix of floats
 typedef float mat4[16];
+
+#endif // VK2D_DISABLE_VECTOR_TYPES
 
 /// \brief Type used for referencing shadow objects
 typedef int32_t VK2DShadowObject;
