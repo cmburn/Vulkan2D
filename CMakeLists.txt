@@ -72,3 +72,4 @@ if(VK2D_BUILD_EXAMPLES)
     add_subdirectory(examples/splitscreen)
     add_subdirectory(examples/testing)
 endif()
+
